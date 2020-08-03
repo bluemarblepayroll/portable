@@ -92,4 +92,89 @@ describe Portable::Writer do
       end
     end
   end
+
+  describe 'README examples' do
+    let(:patients) do
+      [
+        { first: 'Marky', last: 'Mark', dob: '2000-04-05' },
+        { first: 'Frank', last: 'Rizzo', dob: '1930-09-22' }
+      ]
+    end
+
+    describe 'Getting Started with Exports' do
+      let(:export) do
+        {
+          columns: [
+            { header: :first },
+            { header: :last },
+            { header: :dob }
+          ]
+        }
+      end
+
+      it 'produces correct output' do
+        subject.open(filename) do |writer|
+          patients.each do |patient|
+            writer.write(object: patient)
+          end
+        end
+
+        expected = <<~CSV
+          first,last,dob
+          Marky,Mark,2000-04-05
+          Frank,Rizzo,1930-09-22
+        CSV
+
+        actual = read_file(filename)
+
+        expect(actual).to eq(expected)
+      end
+    end
+
+    describe 'Realize Transformation Pipelines' do
+      let(:export) do
+        {
+          columns: [
+            {
+              header: 'First Name',
+              transformers: [
+                { type: 'r/value/resolve', key: :first }
+              ]
+            },
+            {
+              header: 'Last Name',
+              transformers: [
+                { type: 'r/value/resolve', key: :last }
+              ]
+            },
+            {
+              header: 'Date of Birth',
+              transformers: [
+                { type: 'r/value/resolve', key: :dob },
+                { type: 'r/format/date', output_format: '%m/%d/%Y' },
+              ]
+            }
+          ]
+        }
+      end
+
+      it 'produces correct output' do
+        subject.open(filename) do |writer|
+          patients.each do |patient|
+            writer.write(object: patient)
+          end
+        end
+
+        expected = <<~CSV
+          First Name,Last Name,Date of Birth
+          Marky,Mark,04/05/2000
+          Frank,Rizzo,09/22/1930
+        CSV
+
+        actual = read_file(filename)
+
+        expect(actual).to eq(expected)
+      end
+    end
+  end
 end

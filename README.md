@@ -31,7 +31,89 @@ bundle add portable
 
 ## Examples
 
-TODO
+### Getting Started with Exports
+
+Consider the following data set as an array of hashes:
+
+````ruby
+patients = [
+  { first: 'Marky', last: 'Mark', dob: '2000-04-05' },
+  { first: 'Frank', last: 'Rizzo', dob: '1930-09-22' }
+]
+````
+
+We could configure an export like so:
+
+````ruby
+export = {
+  columns: [
+    { header: :first },
+    { header: :last },
+    { header: :dob }
+  ]
+}
+````
+
+And execute the export against the example dataset in order to generate a CSV file:
+
+````ruby
+writer   = Portable::Writer.new(export)
+filename = File.join('tmp', 'patients.csv')
+
+writer.open(filename) do |writer|
+  patients.each do |patient|
+    writer.write(object: patient)
+  end
+end
+````
+
+We should now have a CSV file at tmp/patients.csv that looks like this:
+
+first | last | dob
+----- | ---- | -----
+Marky | Mark | 2000-04-05
+Frank | Rizzo | 1930-09-22
+
+### Realize Transformation Pipelines
+
+This library uses Realize under the hood, so you have the option of configuring any transformation pipeline for each column.  Reviewing [Realize's list of transformers](https://github.com/bluemarblepayroll/realize#transformer-gallery) is recommended to see what is available.
+
+Let's expand our example above with different headers and date formatting:
+
+````ruby
+export = {
+  columns: [
+    {
+      header: 'First Name',
+      transformers: [
+        { type: 'r/value/resolve', key: :first }
+      ]
+    },
+    {
+      header: 'Last Name',
+      transformers: [
+        { type: 'r/value/resolve', key: :last }
+      ]
+    },
+    {
+      header: 'Date of Birth',
+      transformers: [
+        { type: 'r/value/resolve', key: :dob },
+        { type: 'r/format/date', output_format: '%m/%d/%Y' },
+      ]
+    }
+  ]
+}
+````
+
+Executing it the same way would now yield a different CSV file:
+
+First Name | Last Name | Date of Birth
+---------- | --------- | -------------
+Marky      | Mark      | 04/05/2000
+Frank      | Rizzo     | 09/22/1930
+
+Realize is also [pluggable](https://github.com/bluemarblepayroll/realize#plugging-in-transformers), so you are able to create your own and plug them directly into Realize.
 
 ## Contributing
 
