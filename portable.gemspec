@@ -5,14 +5,14 @@ require './lib/portable/version'
 Gem::Specification.new do |s|
   s.name        = 'portable'
   s.version     = Portable::VERSION
-  s.summary     = 'Under Construction'
+  s.summary     = 'Transformable export writer'
 
   s.description = <<-DESCRIPTION
-    Under Construction
+    This library allows you to configure exports, using Realize pipelines, creating a transformation and writing layer.  It is meant to serve as an intermediary library within a much larger ETL framework.
   DESCRIPTION
 
-  s.authors     = ['Matthew Ruggio', 'Dan Dewar']
-  s.email       = ['mruggio@bluemarblepayroll.com', 'ddewar@bluemarblepayroll.com']
+  s.authors     = ['Matthew Ruggio']
+  s.email       = ['mruggio@bluemarblepayroll.com']
   s.files       = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
   s.bindir      = 'exe'
   s.executables = []
@@ -30,7 +30,7 @@ Gem::Specification.new do |s|
 
   s.add_dependency('acts_as_hashable', '~>1')
   s.add_dependency('objectable', '~>1')
-  s.add_dependency('realize', '~>1', '>=1.1.0')
+  s.add_dependency('realize', '~>1.1')
 
   s.add_development_dependency('guard-rspec', '~>4.7')
   s.add_development_dependency('pry', '~>0')
