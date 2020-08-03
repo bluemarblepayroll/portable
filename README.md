@@ -2,7 +2,18 @@
 
 [![Gem Version](https://badge.fury.io/rb/portable.svg)](https://badge.fury.io/rb/portable) [![Build Status](https://travis-ci.org/bluemarblepayroll/portable.svg?branch=master)](https://travis-ci.org/bluemarblepayroll/portable) [![Maintainability](https://api.codeclimate.com/v1/badges/4b47ce94b0c9d889e648/maintainability)](https://codeclimate.com/github/bluemarblepayroll/portable/maintainability) [![Test Coverage](https://api.codeclimate.com/v1/badges/4b47ce94b0c9d889e648/test_coverage)](https://codeclimate.com/github/bluemarblepayroll/portable/test_coverage) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-TODO
+This library provides a configuration layer that allows you to express transformations, using [Realize](https://github.com/bluemarblepayroll/realize), and will write the transformed data down to disk.  Essentially it is meant to be the transformation and load steps within a larger ETL system. We currently use this in production paired up with [Dbee](https://github.com/bluemarblepayroll/dbee) to go from configurable data model + query to file.
+
+Current limitations:
+
+1. Only supports CSV with limited options
+2. Only supports writing to local file system.
+
+Future extension considerations:
+
+1. Support Excel and richer formatting, sheets, etc.
+2. Expand CSV options: delimiter, forcing quotes, etc.
+3. Support PDF
 
 ## Installation
 
