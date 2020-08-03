@@ -28,12 +28,11 @@ Gem::Specification.new do |s|
 
   s.required_ruby_version = '>= 2.5'
 
-  s.add_dependency('dbee', '~>2', '>=2.1.1')
+  s.add_dependency('acts_as_hashable', '~>1')
+  s.add_dependency('objectable', '~>1')
+  s.add_dependency('realize', '~>1', '>=1.1.0')
 
-  s.add_development_dependency('activerecord', '<6')
-  s.add_development_dependency('dbee-active_record', '~>2', '>=2.1.1')
   s.add_development_dependency('guard-rspec', '~>4.7')
-  s.add_development_dependency('mysql2', '~>0.5')
   s.add_development_dependency('pry', '~>0')
   s.add_development_dependency('rake', '~> 13')
   s.add_development_dependency('rspec', '~> 3.8')

@@ -1,0 +1,13 @@
+bom: utf8
+columns:
+  - header: first
+  - header: last
+  - header: dob
+    transformers:
+      - type: r/value/resolve
+        key: dob
+      - type: r/format/date
+        output_format: '%m/%d/%Y'
+  - header: funny
+  - header: status
+include_headers: false
