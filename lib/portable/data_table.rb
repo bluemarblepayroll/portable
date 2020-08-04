@@ -10,30 +10,30 @@
 require_relative 'column'
 
 module Portable
-  # Defines all the options for an export like columns, whether or not you want to include
-  # headers, and more.
-  class Export
+  # Defines all the options for the data grid within an export like columns, whether or not
+  # you want to include headers, and more.
+  class Datagrid
     acts_as_hashable
 
-    module Bom
-      UTF8 = "\uFEFF"
-    end
-    include Bom
+    attr_reader :columns
 
-    attr_reader :bom, :columns, :include_headers
-
-    alias include_headers? include_headers
-
-    def initialize(bom: nil, columns: [], include_headers: true)
-      @bom             = bom ? Bom.const_get(bom.to_s.upcase.to_sym) : nil
+    def initialize(columns: [], include_headers: true)
       @columns         = Column.array(columns)
       @include_headers = include_headers || false
 
       freeze
     end
 
+    def include_headers?
+      include_headers
+    end
+
     def headers
       columns.map(&:header)
     end
+
+    private
+
+    attr_reader :include_headers
   end
 end

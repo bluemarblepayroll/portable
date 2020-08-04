@@ -10,23 +10,23 @@
 require 'file_helper'
 require 'spec_helper'
 
-describe Portable::Writer do
+describe Portable::Csv::Writer do
   let(:filename) { File.join('tmp', "#{SecureRandom.uuid}.csv") }
-  let(:export)   { nil }
+  let(:document)   { nil }
 
-  subject { described_class.new(export) }
+  subject { described_class.new(document) }
 
   it 'raises AlreadyOpenError if #open is called twice without #close' do
     subject.open(filename)
-    expect { subject.open(filename) }.to raise_error(Portable::Writer::AlreadyOpenError)
+    expect { subject.open(filename) }.to raise_error(Portable::Csv::Writer::AlreadyOpenError)
   end
 
   it 'raises NotOpenError if #write is called without calling #open' do
-    expect { subject.write }.to raise_error(Portable::Writer::NotOpenError)
+    expect { subject.write }.to raise_error(Portable::Csv::Writer::NotOpenError)
   end
 
   it 'raises NotOpenError if #close is called without calling #open' do
-    expect { subject.write }.to raise_error(Portable::Writer::NotOpenError)
+    expect { subject.write }.to raise_error(Portable::Csv::Writer::NotOpenError)
   end
 
   context 'when using object-based method' do
@@ -43,15 +43,13 @@ describe Portable::Writer do
     end
 
     describe 'snapshots' do
-      read_snapshots.each do |snapshot|
-        let(:export) { snapshot.export }
+      read_snapshots('csv').each do |snapshot|
+        let(:document) { snapshot.document }
 
         specify snapshot.name do
           subject.open(filename)
 
-          snapshot.records.each do |record|
-            subject.write(object: record)
-          end
+          subject.write_all(snapshot.records)
 
           subject.close
 
@@ -75,14 +73,12 @@ describe Portable::Writer do
     end
 
     describe 'snapshots' do
-      read_snapshots.each do |snapshot|
-        let(:export) { snapshot.export }
+      read_snapshots('csv').each do |snapshot|
+        let(:document) { snapshot.document }
 
         specify snapshot.name do
           subject.open(filename) do |writer|
-            snapshot.records.each do |record|
-              writer.write(object: record)
-            end
+            writer.write_all(snapshot.records)
           end
 
           actual = read_file(filename)
@@ -102,21 +98,21 @@ describe Portable::Writer do
     end
 
     describe 'Getting Started with Exports' do
-      let(:export) do
+      let(:document) do
         {
-          columns: [
-            { header: :first },
-            { header: :last },
-            { header: :dob }
-          ]
+          data_table: {
+            columns: [
+              { header: :first },
+              { header: :last },
+              { header: :dob }
+            ]
+          }
         }
       end
 
       it 'produces correct output' do
         subject.open(filename) do |writer|
-          patients.each do |patient|
-            writer.write(object: patient)
-          end
+          writer.write_all(patients)
         end
 
         expected = <<~CSV
@@ -132,37 +128,37 @@ describe Portable::Writer do
     end
 
     describe 'Realize Transformation Pipelines' do
-      let(:export) do
+      let(:document) do
         {
-          columns: [
-            {
-              header: 'First Name',
-              transformers: [
-                { type: 'r/value/resolve', key: :first }
-              ]
-            },
-            {
-              header: 'Last Name',
-              transformers: [
-                { type: 'r/value/resolve', key: :last }
-              ]
-            },
-            {
-              header: 'Date of Birth',
-              transformers: [
-                { type: 'r/value/resolve', key: :dob },
-                { type: 'r/format/date', output_format: '%m/%d/%Y' },
-              ]
-            }
-          ]
+          data_table: {
+            columns: [
+              {
+                header: 'First Name',
+                transformers: [
+                  { type: 'r/value/resolve', key: :first }
+                ]
+              },
+              {
+                header: 'Last Name',
+                transformers: [
+                  { type: 'r/value/resolve', key: :last }
+                ]
+              },
+              {
+                header: 'Date of Birth',
+                transformers: [
+                  { type: 'r/value/resolve', key: :dob },
+                  { type: 'r/format/date', output_format: '%m/%d/%Y' },
+                ]
+              }
+            ]
+          }
         }
       end
 
       it 'produces correct output' do
         subject.open(filename) do |writer|
-          patients.each do |patient|
-            writer.write(object: patient)
-          end
+          writer.write_all(patients)
         end
 
         expected = <<~CSV

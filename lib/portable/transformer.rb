@@ -7,8 +7,6 @@
 # LICENSE file in the root directory of this source tree.
 #
 
-require_relative 'export'
-
 module Portable
   # Internal intermediary class that knows how to combine columns specification instances with their
   # respective Realize pipelines.

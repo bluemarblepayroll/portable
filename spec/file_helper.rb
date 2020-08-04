@@ -10,14 +10,14 @@
 require 'ostruct'
 require 'yaml'
 
-def read_snapshots
-  Dir[File.join(snapshot_path, '*')].map do |path|
+def read_snapshots(folder)
+  Dir[File.join(snapshot_path, folder, '*')].map do |path|
     name = File.basename(path)
 
     OpenStruct.new(
-      expected: read_snapshot_file(name, 'expected.csv'),
-      export: read_snapshot_yaml_file(name, 'export.yaml'),
-      records: read_snapshot_yaml_file(name, 'records.yaml'),
+      expected: read_snapshot_file(folder, name, 'expected.csv'),
+      document: read_snapshot_yaml_file(folder, name, 'document.yaml'),
+      records: read_snapshot_yaml_file(folder, name, 'records.yaml'),
       name: name,
       path: path
     )

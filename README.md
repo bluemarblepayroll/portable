@@ -31,7 +31,7 @@ bundle add portable
 
 ## Examples
 
-### Getting Started with Exports
+### Getting Started Writing CSV Files
 
 Consider the following data set as an array of hashes:
 
@@ -45,26 +45,24 @@ patients = [
 We could configure an export like so:
 
 ````ruby
-export = {
-  columns: [
-    { header: :first },
-    { header: :last },
-    { header: :dob }
-  ]
+document = {
+  data_table: {
+    columns: [
+      { header: :first },
+      { header: :last },
+      { header: :dob }
+    ]
+  }
 }
 ````
 
 And execute the export against the example dataset in order to generate a CSV file:
 
 ````ruby
-writer   = Portable::Writer.new(export)
+writer   = Portable::Csv::Writer.new(export)
 filename = File.join('tmp', 'patients.csv')
 
-writer.open(filename) do |writer|
-  patients.each do |patient|
-    writer.write(object: patient)
-  end
-end
+writer.open(filename) { |writer| writer.write_all(patients) }
 ````
 
 We should now have a CSV file at tmp/patients.csv that looks like this:
@@ -78,31 +76,33 @@ Frank | Rizzo | 1930-09-22
 
 This library uses Realize under the hood, so you have the option of configuring any transformation pipeline for each column.  Reviewing [Realize's list of transformers](https://github.com/bluemarblepayroll/realize#transformer-gallery) is recommended to see what is available.
 
-Let's expand our example above with different headers and date formatting:
+Let's expand our CSV example above with different headers and date formatting:
 
 ````ruby
-export = {
-  columns: [
-    {
-      header: 'First Name',
-      transformers: [
-        { type: 'r/value/resolve', key: :first }
-      ]
-    },
-    {
-      header: 'Last Name',
-      transformers: [
-        { type: 'r/value/resolve', key: :last }
-      ]
-    },
-    {
-      header: 'Date of Birth',
-      transformers: [
-        { type: 'r/value/resolve', key: :dob },
-        { type: 'r/format/date', output_format: '%m/%d/%Y' },
-      ]
-    }
-  ]
+document = {
+  data_table: {
+    columns: [
+      {
+        header: 'First Name',
+        transformers: [
+          { type: 'r/value/resolve', key: :first }
+        ]
+      },
+      {
+        header: 'Last Name',
+        transformers: [
+          { type: 'r/value/resolve', key: :last }
+        ]
+      },
+      {
+        header: 'Date of Birth',
+        transformers: [
+          { type: 'r/value/resolve', key: :dob },
+          { type: 'r/format/date', output_format: '%m/%d/%Y' },
+        ]
+      }
+    ]
+  }
 }
 ````
 
@@ -114,6 +114,71 @@ Marky      | Mark      | 04/05/2000
 Frank      | Rizzo     | 09/22/1930
 
 Realize is also [pluggable](https://github.com/bluemarblepayroll/realize#plugging-in-transformers), so you are able to create your own and plug them directly into Realize.
+
+### Options
+
+Each writer can have its own set of options.
+
+#### CSV Options
+
+The following options are available for customizing CSV documents:
+
+* byte_order_mark: (optional, default is nothing): This option will write out a byte order mark identifying the encoding for the file.  This is useful for ensuring applications like Microsoft Excel open CSV files properly.  See Portable::Csv::ByteOrderMark constants for acceptable values.
+
+### Custom Header/Footer Rows
+
+The main document model can also include statically defined rows to place either at the header (above data table) or footer (below data table) locations.  For example:
+
+````ruby
+document = {
+  data_table: {
+    columns: [
+      {
+        header: 'First Name',
+        transformers: [
+          { type: 'r/value/resolve', key: :first }
+        ]
+      },
+      {
+        header: 'Last Name',
+        transformers: [
+          { type: 'r/value/resolve', key: :last }
+        ]
+      },
+      {
+        header: 'Date of Birth',
+        transformers: [
+          { type: 'r/value/resolve', key: :dob },
+          { type: 'r/format/date', output_format: '%m/%d/%Y' },
+        ]
+      }
+    ]
+  },
+  header_rows: [
+    [ 'Run Date', '04/05/2000' ],
+    [ 'Run By', 'Hops the Bunny' ],
+    [],
+    [ 'BEGIN' ]
+  ],
+  header_rows: [
+    [ 'END' ]
+  ],
+}
+````
+
+Using this document configuration would yield a CSV with four "header rows" at the top, one "data table header row", two data rows, and one "footer row".  This is not easily illustrated in Markdown, but this would be the result:
+
+````
+Run Date   | 04/05/2000
+Run By     | Hops the Bunny
+
+BEGIN
+First Name | Last Name | Date of Birth
+---------- | --------- | -------------
+Marky      | Mark      | 04/05/2000
+Frank      | Rizzo     | 09/22/1930
+END
+````
 
 ## Contributing
 
