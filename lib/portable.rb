@@ -16,6 +16,5 @@ require 'realize'
 require 'time'
 
 require_relative 'portable/data_table'
-require_relative 'portable/document'
 require_relative 'portable/transformer'
 require_relative 'portable/writers'
