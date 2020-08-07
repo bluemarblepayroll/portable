@@ -33,13 +33,11 @@ module Portable
       private
 
       def write_sheet(sheet_filename, sheet, data_source, time)
-        row_renderer = sheet_renderer.row_renderer(sheet.name, data_source.fields)
-
         CSV.open(sheet_filename, 'w') do |csv|
           csv.to_io.write(document.options.byte_order_mark) if document.options.byte_order_mark?
 
           write_head(csv, sheet, data_source)
-          write_data_table(csv, sheet, data_source, row_renderer, time)
+          write_data_table(csv, sheet, data_source, time)
           write_foot(csv, sheet, data_source)
         end
       end
@@ -50,7 +48,9 @@ module Portable
         data_source.header_rows.each { |row| csv << row }
       end
 
-      def write_data_table(csv, sheet, data_source, row_renderer, time)
+      def write_data_table(csv, sheet, data_source, time)
+        row_renderer = sheet_renderer.row_renderer(sheet.name, data_source.fields)
+
         csv << row_renderer.headers if sheet.include_headers?
 
         data_source.data_rows.each do |row|

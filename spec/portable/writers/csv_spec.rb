@@ -11,7 +11,8 @@ require 'snapshot_helper'
 require 'spec_helper'
 
 describe Portable::Writers::Csv do
-  let(:filename) { File.join('tmp', "#{SecureRandom.uuid}.csv") }
+  let(:dir)      { File.join('tmp', 'spec') }
+  let(:filename) { File.join(*dir, "#{SecureRandom.uuid}.csv") }
   let(:document) { nil }
   let(:resolver) { Objectable.resolver(separator: '') }
   let(:time)     { Time.now.utc }
@@ -34,8 +35,6 @@ describe Portable::Writers::Csv do
           expected_files = snapshot.expected.values
 
           expect(actual_files).to eq(expected_files)
-
-          actual_filenames.each { |f| FileUtils.rm(f, force: true) }
         end
       end
     end
@@ -80,8 +79,6 @@ describe Portable::Writers::Csv do
         ]
 
         expect(actual_files).to eq(expected_files)
-
-        written.each { |f| FileUtils.rm(f, force: true) }
       end
     end
 
@@ -135,8 +132,67 @@ describe Portable::Writers::Csv do
         ]
 
         expect(actual_files).to eq(expected_files)
+      end
+    end
 
-        written.each { |f| FileUtils.rm(f, force: true) }
+    describe 'Static Header/Footer Rows' do
+      let(:data_provider) do
+        Portable::Data::Provider.new(
+          data_sources: {
+            data_rows: patients,
+            fields: %i[first last dob],
+            header_rows: [
+              %w[FIRST_START LAST_START DOB_START]
+            ],
+            footer_rows: [
+              %w[FIRST_END LAST_END DOB_END]
+            ]
+          }
+        )
+      end
+
+      let(:document) do
+        {
+          sheets: [
+            {
+              header_rows: [
+                ['Run Date', '04/05/2000'],
+                ['Run By', 'Hops the Bunny'],
+                [],
+                ['BEGIN']
+              ],
+              footer_rows: [
+                ['END']
+              ]
+            }
+          ]
+        }
+      end
+
+      it 'renders' do
+        writer  = Portable::Writers::Csv.new(document)
+        written = writer.write!(filename: filename, data_provider: data_provider)
+
+        expect(written).to eq([filename])
+
+        actual_files = written.map { |f| read_file(f) }
+
+        expected_files = [
+          <<~CSV
+            Run Date,04/05/2000
+            Run By,Hops the Bunny
+
+            BEGIN
+            FIRST_START,LAST_START,DOB_START
+            first,last,dob
+            Marky,Mark,2000-04-05
+            Frank,Rizzo,1930-09-22
+            FIRST_END,LAST_END,DOB_END
+            END
+          CSV
+        ]
+
+        expect(actual_files).to eq(expected_files)
       end
     end
   end

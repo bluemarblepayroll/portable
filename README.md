@@ -32,10 +32,12 @@ patients = [
   { first: 'Frank', last: 'Rizzo', dob: '1930-09-22' }
 ]
 
-data_provider = Portable::Data::Provider.new(data_sources: {
-  data_rows: patients,
-  fields: %i[first last dob]
-})
+data_provider = Portable::Data::Provider.new(
+  data_sources: {
+    data_rows: patients,
+    fields: %i[first last dob]
+  }
+)
 ````
 
 **Note:** Data::Provider and Data::Source objects are pretty basic, on purpose, so they can be easily re-implemented based on an application's specific needs.
@@ -120,44 +122,43 @@ The following options are available for customizing CSV documents:
 
 * byte_order_mark: (optional, default is nothing): This option will write out a byte order mark identifying the encoding for the file.  This is useful for ensuring applications like Microsoft Excel open CSV files properly.  See Portable::Modeling::ByteOrderMark constants for acceptable values.
 
-### Custom Header/Footer Rows
+### Static Header/Footer Rows
 
-The main document model can also include statically defined rows to place either at the header (above data table) or footer (below data table) locations.  For example:
+The main document model can also include statically defined rows to place either at the header (above data table) or footer (below data table) locations.  You can also have the data_source inject static header and footer rows as well.  For example:
 
 ````ruby
-document = {
-  data_table: {
-    columns: [
-      {
-        header: 'First Name',
-        transformers: [
-          { type: 'r/value/resolve', key: :first }
-        ]
-      },
-      {
-        header: 'Last Name',
-        transformers: [
-          { type: 'r/value/resolve', key: :last }
-        ]
-      },
-      {
-        header: 'Date of Birth',
-        transformers: [
-          { type: 'r/value/resolve', key: :dob },
-          { type: 'r/format/date', output_format: '%m/%d/%Y' },
-        ]
-      }
+patients = [
+  { first: 'Marky', last: 'Mark', dob: '2000-04-05' },
+  { first: 'Frank', last: 'Rizzo', dob: '1930-09-22' }
+]
+
+data_provider = Portable::Data::Provider.new(
+  data_sources: {
+    data_rows: patients,
+    fields: %i[first last dob],
+    header_rows: [
+      %w[FIRST_START LAST_START DOB_START]
+    ],
+    footer_rows: [
+      %w[FIRST_END LAST_END DOB_END]
     ]
-  },
-  header_rows: [
-    [ 'Run Date', '04/05/2000' ],
-    [ 'Run By', 'Hops the Bunny' ],
-    [],
-    [ 'BEGIN' ]
-  ],
-  header_rows: [
-    [ 'END' ]
-  ],
+  }
+)
+
+document = {
+  sheets: [
+    {
+      header_rows: [
+        [ 'Run Date', '04/05/2000' ],
+        [ 'Run By', 'Hops the Bunny' ],
+        [],
+        [ 'BEGIN' ]
+      ],
+      footer_rows: [
+        [ 'END' ]
+      ]
+    }
+  ]
 }
 ````
 
