@@ -10,7 +10,7 @@
 require_relative 'byte_order_mark'
 
 module Portable
-  module Csv
+  module Modeling
     # Defines all the options for an export including static header rows, footer rows, and how
     # to draw the data table.
     class Options

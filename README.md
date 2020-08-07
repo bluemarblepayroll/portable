@@ -2,18 +2,9 @@
 
 [![Gem Version](https://badge.fury.io/rb/portable.svg)](https://badge.fury.io/rb/portable) [![Build Status](https://travis-ci.org/bluemarblepayroll/portable.svg?branch=master)](https://travis-ci.org/bluemarblepayroll/portable) [![Maintainability](https://api.codeclimate.com/v1/badges/4b47ce94b0c9d889e648/maintainability)](https://codeclimate.com/github/bluemarblepayroll/portable/maintainability) [![Test Coverage](https://api.codeclimate.com/v1/badges/4b47ce94b0c9d889e648/test_coverage)](https://codeclimate.com/github/bluemarblepayroll/portable/test_coverage) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-This library provides a configuration layer that allows you to express transformations, using [Realize](https://github.com/bluemarblepayroll/realize), and will write the transformed data down to disk.  Essentially it is meant to be the transformation and load steps within a larger ETL system. We currently use this in production paired up with [Dbee](https://github.com/bluemarblepayroll/dbee) to go from configurable data model + query to file.
+Portable is a virtual document object modeling library.  Out of the box is provides a CSV writer but others for other formats like Microsoft Excel could easily be implemented and used.
 
-Current limitations:
-
-1. Only supports CSV with limited options
-2. Only supports writing to local file system.
-
-Future extension considerations:
-
-1. Support Excel and richer formatting, sheets, etc.
-2. Expand CSV options: delimiter, forcing quotes, etc.
-3. Support PDF
+This library utilizes [the Realize library](https://github.com/bluemarblepayroll/realize) that allows you to express transformation pipelines.  Essentially this library is meant to be the transformation and load steps within a larger ETL system. We currently use this in production paired up with [Dbee](https://github.com/bluemarblepayroll/dbee) for data sources to go from configurable data model + query to file.
 
 ## Installation
 
@@ -33,36 +24,36 @@ bundle add portable
 
 ### Getting Started Writing CSV Files
 
-Consider the following data set as an array of hashes:
+Consider the following data provider/source:
 
 ````ruby
 patients = [
   { first: 'Marky', last: 'Mark', dob: '2000-04-05' },
   { first: 'Frank', last: 'Rizzo', dob: '1930-09-22' }
 ]
+
+data_provider = Portable::Data::Provider.new(data_sources: {
+  data_rows: patients,
+  fields: %i[first last dob]
+})
 ````
 
-We could configure an export like so:
+**Note:** Data::Provider and Data::Source objects are pretty basic, on purpose, so they can be easily re-implemented based on an application's specific needs.
+
+We could configure the most basic document like so:
 
 ````ruby
-document = {
-  data_table: {
-    columns: [
-      { header: :first },
-      { header: :last },
-      { header: :dob }
-    ]
-  }
-}
+document = nil # or {} or Portable::Document.new
 ````
 
-And execute the export against the example dataset in order to generate a CSV file:
+The above document says I would like a document with one sheet, and since I did not provide a data_table specification, I would like all the fields emitted from the data source.
+
+Combining a document + writer + data provider yields a set of documents (it may be more than one if the writer does not know how to write intra-file sheets, i.e. CSV files.)
 
 ````ruby
-writer   = Portable::Csv::Writer.new(export)
-filename = File.join('tmp', 'patients.csv')
-
-writer.open(filename) { |writer| writer.write_all(patients) }
+writer    = Portable::Writers::Csv.new(document)
+name      = File.join('tmp', 'patients.csv')
+written   = writer.write!(filename: name, data_provider: data_provider)
 ````
 
 We should now have a CSV file at tmp/patients.csv that looks like this:
@@ -80,29 +71,33 @@ Let's expand our CSV example above with different headers and date formatting:
 
 ````ruby
 document = {
-  data_table: {
-    columns: [
-      {
-        header: 'First Name',
-        transformers: [
-          { type: 'r/value/resolve', key: :first }
-        ]
-      },
-      {
-        header: 'Last Name',
-        transformers: [
-          { type: 'r/value/resolve', key: :last }
-        ]
-      },
-      {
-        header: 'Date of Birth',
-        transformers: [
-          { type: 'r/value/resolve', key: :dob },
-          { type: 'r/format/date', output_format: '%m/%d/%Y' },
+  sheets: [
+    {
+      data_table: {
+        columns: [
+          {
+            header: 'First Name',
+            transformers: [
+              { type: 'r/value/resolve', key: :first }
+            ]
+          },
+          {
+            header: 'Last Name',
+            transformers: [
+              { type: 'r/value/resolve', key: :last }
+            ]
+          },
+          {
+            header: 'Date of Birth',
+            transformers: [
+              { type: 'r/value/resolve', key: :dob },
+              { type: 'r/format/date', output_format: '%m/%d/%Y' },
+            ]
+          }
         ]
       }
-    ]
-  }
+    }
+  ]
 }
 ````
 
@@ -117,13 +112,13 @@ Realize is also [pluggable](https://github.com/bluemarblepayroll/realize#pluggin
 
 ### Options
 
-Each writer can have its own set of options.
+Each writer can choose how and which options to support.
 
 #### CSV Options
 
 The following options are available for customizing CSV documents:
 
-* byte_order_mark: (optional, default is nothing): This option will write out a byte order mark identifying the encoding for the file.  This is useful for ensuring applications like Microsoft Excel open CSV files properly.  See Portable::Csv::ByteOrderMark constants for acceptable values.
+* byte_order_mark: (optional, default is nothing): This option will write out a byte order mark identifying the encoding for the file.  This is useful for ensuring applications like Microsoft Excel open CSV files properly.  See Portable::Modeling::ByteOrderMark constants for acceptable values.
 
 ### Custom Header/Footer Rows
 

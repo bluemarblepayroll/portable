@@ -5,10 +5,10 @@ require './lib/portable/version'
 Gem::Specification.new do |s|
   s.name        = 'portable'
   s.version     = Portable::VERSION
-  s.summary     = 'Transformable export writer'
+  s.summary     = 'Virtual Document Modeling and Rendering Engine'
 
   s.description = <<-DESCRIPTION
-    This library allows you to configure exports, using Realize pipelines, creating a transformation and writing layer.  It is meant to serve as an intermediary library within a much larger ETL framework.
+    Portable is a virtual document object modeling library.  Out of the box is provides a CSV writer but others for other formats like Microsoft Excel could easily be implemented and used.
   DESCRIPTION
 
   s.authors     = ['Matthew Ruggio']

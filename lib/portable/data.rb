@@ -7,12 +7,4 @@
 # LICENSE file in the root directory of this source tree.
 #
 
-require 'yaml'
-
-def read_yaml_file(*filename)
-  YAML.safe_load(read_file(*filename))
-end
-
-def read_file(*filename)
-  File.open(File.join(*filename), 'r:bom|utf-8').read
-end
+require_relative 'data/provider'

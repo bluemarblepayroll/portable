@@ -8,7 +8,7 @@
 #
 
 module Portable
-  module Csv
+  module Modeling
     # Define all acceptable byte order mark values.
     module ByteOrderMark
       UTF_8    = "\xEF\xBB\xBF"

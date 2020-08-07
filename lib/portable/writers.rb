@@ -7,4 +7,4 @@
 # LICENSE file in the root directory of this source tree.
 #
 
-require_relative 'csv/writer'
+require_relative 'writers/csv'
