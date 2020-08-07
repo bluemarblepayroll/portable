@@ -34,7 +34,7 @@ describe Portable::Writers::Csv do
           actual_files   = actual_filenames.map { |f| read_file(f) }
           expected_files = snapshot.expected.values
 
-          expect(actual_files).to eq(expected_files)
+          expect(actual_files).to match_array(expected_files)
         end
       end
     end
