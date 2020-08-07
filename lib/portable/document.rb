@@ -13,6 +13,7 @@ require_relative 'modeling/sheet'
 module Portable
   # Top-level object model for a renderable document.
   class Document
+    include Uniqueness
     acts_as_hashable
 
     attr_reader :sheets, :options
@@ -21,6 +22,8 @@ module Portable
       @sheets = Modeling::Sheet.array(sheets)
       @sheets << Modeling::Sheet.new if @sheets.empty?
       @options = Modeling::Options.make(options)
+
+      assert_no_duplicate_names(@sheets)
 
       freeze
     end

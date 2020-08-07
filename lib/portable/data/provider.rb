@@ -14,10 +14,14 @@ module Portable
     # Container of data sources that is inputted into a writer alongside a document.
     # It contains all the data sources the writer will use to render a document.
     class Provider
+      include Uniqueness
       acts_as_hashable
 
       def initialize(data_sources: [])
-        @data_sources_by_name = pivot_by_name(Source.array(data_sources))
+        sources               = Source.array(data_sources)
+        @data_sources_by_name = pivot_by_name(sources)
+
+        assert_no_duplicate_names(sources)
 
         freeze
       end

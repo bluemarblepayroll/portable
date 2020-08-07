@@ -15,6 +15,10 @@ require 'objectable'
 require 'realize'
 require 'time'
 
+# Shared modules/classes
+require_relative 'portable/uniqueness'
+
+# Main implementation points
 require_relative 'portable/data'
 require_relative 'portable/document'
 require_relative 'portable/rendering'
