@@ -8,6 +8,7 @@
 #
 
 require 'acts_as_hashable'
+require 'benchmark'
 require 'csv'
 require 'fileutils'
 require 'forwardable'

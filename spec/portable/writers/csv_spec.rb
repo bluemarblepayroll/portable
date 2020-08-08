@@ -25,13 +25,13 @@ describe Portable::Writers::Csv do
         let(:document) { snapshot.document }
 
         specify snapshot.name do
-          actual_filenames = subject.write!(
+          results = subject.write!(
             filename: filename,
             data_provider: snapshot.data_provider,
             time: time
           )
 
-          actual_files   = actual_filenames.map { |f| read_file(f) }
+          actual_files   = results.map { |r| read_file(r.filename) }
           expected_files = snapshot.expected.values
 
           expect(actual_files).to match_array(expected_files)
@@ -64,11 +64,11 @@ describe Portable::Writers::Csv do
 
       it 'renders' do
         writer  = Portable::Writers::Csv.new(document)
-        written = writer.write!(filename: filename, data_provider: data_provider)
+        results = writer.write!(filename: filename, data_provider: data_provider)
 
-        expect(written).to eq([filename])
+        expect(results.map(&:filename)).to eq([filename])
 
-        actual_files = written.map { |f| read_file(f) }
+        actual_files = results.map { |r| read_file(r.filename) }
 
         expected_files = [
           <<~CSV
@@ -117,11 +117,11 @@ describe Portable::Writers::Csv do
 
       it 'renders' do
         writer  = Portable::Writers::Csv.new(document)
-        written = writer.write!(filename: filename, data_provider: data_provider)
+        results = writer.write!(filename: filename, data_provider: data_provider)
 
-        expect(written).to eq([filename])
+        expect(results.map(&:filename)).to eq([filename])
 
-        actual_files = written.map { |f| read_file(f) }
+        actual_files = results.map { |r| read_file(r.filename) }
 
         expected_files = [
           <<~CSV
@@ -171,11 +171,11 @@ describe Portable::Writers::Csv do
 
       it 'renders' do
         writer  = Portable::Writers::Csv.new(document)
-        written = writer.write!(filename: filename, data_provider: data_provider)
+        results = writer.write!(filename: filename, data_provider: data_provider)
 
-        expect(written).to eq([filename])
+        expect(results.map(&:filename)).to eq([filename])
 
-        actual_files = written.map { |f| read_file(f) }
+        actual_files = results.map { |r| read_file(r.filename) }
 
         expected_files = [
           <<~CSV

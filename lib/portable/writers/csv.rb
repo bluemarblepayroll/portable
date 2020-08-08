@@ -8,6 +8,7 @@
 #
 
 require_relative 'base'
+require_relative 'result'
 
 module Portable
   module Writers
@@ -18,16 +19,18 @@ module Portable
 
         ensure_directory_exists(filename)
 
-        sheet_filenames = extrapolate_filenames(filename)
+        sheet_filenames = extrapolate_filenames(filename, document.sheets.length)
 
-        document.sheets.each do |sheet|
+        document.sheets.map.with_index do |sheet, index|
           data_source    = data_provider.data_source(sheet.name)
-          sheet_filename = sheet_filenames[sheet.name]
+          sheet_filename = sheet_filenames[index]
 
-          write_sheet(sheet_filename, sheet, data_source, time)
+          time_in_seconds = Benchmark.measure do
+            write_sheet(sheet_filename, sheet, data_source, time)
+          end.real
+
+          Result.new(sheet_filename, time_in_seconds)
         end
-
-        sheet_filenames.values
       end
 
       private
@@ -70,21 +73,17 @@ module Portable
         FileUtils.mkdir_p(path) unless File.exist?(path)
       end
 
-      def extrapolate_filenames(filename)
-        index    = 0
+      def extrapolate_filenames(filename, count)
         dir      = File.dirname(filename)
         ext      = File.extname(filename)
         basename = File.basename(filename, ext)
 
-        document.sheets.each_with_object({}) do |sheet, memo|
-          memo[sheet.name] =
-            if index.positive?
-              File.join(dir, "#{basename}.#{index}#{ext}")
-            else
-              filename
-            end
-
-          index += 1
+        (0..count).map do |index|
+          if index.positive?
+            File.join(dir, "#{basename}.#{index}#{ext}")
+          else
+            filename
+          end
         end
       end
     end
