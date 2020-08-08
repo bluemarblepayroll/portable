@@ -19,23 +19,21 @@ describe Portable::Writers::Csv do
 
   subject { described_class.new(document, resolver: resolver) }
 
-  context 'csv provider' do
-    describe 'snapshots' do
-      snapshots.each do |snapshot|
-        let(:document) { snapshot.document }
+  describe 'snapshots' do
+    snapshots.each do |snapshot|
+      let(:document) { snapshot.document }
 
-        specify snapshot.name do
-          results = subject.write!(
-            filename: filename,
-            data_provider: snapshot.data_provider,
-            time: time
-          )
+      specify snapshot.name do
+        results = subject.write!(
+          filename: filename,
+          data_provider: snapshot.data_provider,
+          time: time
+        )
 
-          actual_files   = results.map { |r| read_file(r.filename) }
-          expected_files = snapshot.expected.values
+        actual_files   = results.map { |r| read_binary_file(r.filename) }
+        expected_files = read_binary_files(snapshot.expected_filenames('csv')).values
 
-          expect(actual_files).to match_array(expected_files)
-        end
+        expect(actual_files).to match_array(expected_files)
       end
     end
   end
@@ -68,7 +66,7 @@ describe Portable::Writers::Csv do
 
         expect(results.map(&:filename)).to eq([filename])
 
-        actual_files = results.map { |r| read_file(r.filename) }
+        actual_files = results.map { |r| read_binary_file(r.filename) }
 
         expected_files = [
           <<~CSV
@@ -121,7 +119,7 @@ describe Portable::Writers::Csv do
 
         expect(results.map(&:filename)).to eq([filename])
 
-        actual_files = results.map { |r| read_file(r.filename) }
+        actual_files = results.map { |r| read_binary_file(r.filename) }
 
         expected_files = [
           <<~CSV
@@ -175,7 +173,7 @@ describe Portable::Writers::Csv do
 
         expect(results.map(&:filename)).to eq([filename])
 
-        actual_files = results.map { |r| read_file(r.filename) }
+        actual_files = results.map { |r| read_binary_file(r.filename) }
 
         expected_files = [
           <<~CSV

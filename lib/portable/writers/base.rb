@@ -20,6 +20,14 @@ module Portable
 
         freeze
       end
+
+      private
+
+      def ensure_directory_exists(filename)
+        path = File.dirname(filename)
+
+        FileUtils.mkdir_p(path) unless File.exist?(path)
+      end
     end
   end
 end

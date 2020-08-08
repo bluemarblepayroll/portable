@@ -67,12 +67,6 @@ module Portable
         sheet.footer_rows.each { |row| csv << row }
       end
 
-      def ensure_directory_exists(filename)
-        path = File.dirname(filename)
-
-        FileUtils.mkdir_p(path) unless File.exist?(path)
-      end
-
       def extrapolate_filenames(filename, count)
         dir      = File.dirname(filename)
         ext      = File.extname(filename)

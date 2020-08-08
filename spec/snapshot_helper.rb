@@ -13,20 +13,24 @@ class Snapshot
   DOCUMENT_FILENAME      = 'document.yaml'
   DATA_PROVIDER_FILENAME = 'data_provider.yaml'
 
-  attr_reader :expected,
-              :document,
+  attr_reader :document,
               :data_provider,
               :name,
               :path
 
-  def initialize(path, writer_type)
+  def initialize(path)
     @path          = path
     @name          = File.basename(path)
-    @expected      = read_expected_files(writer_type)
     @document      = read_document
     @data_provider = Portable::Data::Provider.make(read_data_provider)
 
     freeze
+  end
+
+  def expected_filenames(folder)
+    expected_files_path = File.join(*path, folder, '*')
+
+    Dir[expected_files_path]
   end
 
   private
@@ -39,23 +43,13 @@ class Snapshot
     read_yaml_file(path, DATA_PROVIDER_FILENAME)
   end
 
-  def read_expected_files(writer_type)
-    expected_files_path = File.join(*path, writer_type, '*')
-
-    Dir[expected_files_path].each_with_object({}) do |filename, memo|
-      expected_filename = File.basename(filename)
-
-      memo[expected_filename] = read_file(*filename)
-    end
-  end
-
   def read_snapshot_yaml_file(*filename)
     read_yaml_file(SNAPSHOT_PATH, *filename)
   end
 end
 
 def snapshots
-  snapshot_paths.map { |path| Snapshot.new(path, 'csv') }
+  snapshot_paths.map { |path| Snapshot.new(path) }
 end
 
 def snapshot_paths

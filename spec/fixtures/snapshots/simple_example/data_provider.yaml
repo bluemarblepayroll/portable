@@ -20,7 +20,7 @@ data_sources:
       - first: Joey
         last: Shmoey
         dob: '1999-04-04'
-        funny: nil
+        funny: null
         status: 2
 
   - name: sheet2

@@ -9,10 +9,18 @@
 
 require 'yaml'
 
-def read_yaml_file(*filename)
-  YAML.safe_load(read_file(*filename))
+def read_binary_files(filenames)
+  filenames.each_with_object({}) do |filename, memo|
+    expected_filename = File.basename(filename)
+
+    memo[expected_filename] = read_binary_file(*filename)
+  end
 end
 
-def read_file(*filename)
-  File.open(File.join(*filename), 'r:bom|utf-8').read
+def read_yaml_file(*filename)
+  YAML.safe_load(read_binary_file(*filename))
+end
+
+def read_binary_file(*filename)
+  File.open(File.join(*filename), 'rb').read
 end

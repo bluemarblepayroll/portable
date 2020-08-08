@@ -17,6 +17,8 @@ module Portable
       include Uniqueness
       acts_as_hashable
 
+      DEFAULT_NAME = ''
+
       def initialize(data_sources: [])
         sources               = Source.array(data_sources)
         @data_sources_by_name = pivot_by_name(sources)
@@ -26,8 +28,13 @@ module Portable
         freeze
       end
 
+      # Use exact name if possible, if not then use the "default" one (noted by a blank name).
+      # Fail hard if we cannot identify which data source to use.  This should help prevent
+      # possible configuration issues (i.e. typos.)
       def data_source(name)
-        data_sources_by_name.fetch(name.to_s, Source.new)
+        data_sources_by_name[name.to_s] ||
+          data_sources_by_name[DEFAULT_NAME] ||
+          raise(ArgumentError, "data source: '#{name}' cannot be found.")
       end
 
       private
