@@ -22,7 +22,7 @@ class Snapshot
     @path          = path
     @name          = File.basename(path)
     @document      = read_document
-    @data_provider = Portable::Data::Provider.make(read_data_provider)
+    @data_provider = Portable::Data::Provider.make(read_data_provider, nullable: false)
 
     freeze
   end

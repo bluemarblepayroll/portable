@@ -17,31 +17,30 @@ module Portable
     # one file.
     class Sheet
       acts_as_hashable
+      extend Forwardable
+
+      def_delegators :data_table,
+                     :auto?,
+                     :columns,
+                     :include_headers?
 
       attr_reader :data_table,
                   :footer_rows,
                   :header_rows,
-                  :name,
-                  :include_headers
+                  :name
 
       def initialize(
         data_table: nil,
         footer_rows: [],
         header_rows: [],
-        name: '',
-        include_headers: true
+        name: ''
       )
-        @name            = name.to_s
-        @data_table      = DataTable.make(data_table)
-        @footer_rows     = footer_rows || []
-        @header_rows     = header_rows || []
-        @include_headers = include_headers || false
+        @name        = name.to_s
+        @data_table  = DataTable.make(data_table, nullable: false)
+        @footer_rows = footer_rows || []
+        @header_rows = header_rows || []
 
         freeze
-      end
-
-      def include_headers?
-        include_headers
       end
     end
   end

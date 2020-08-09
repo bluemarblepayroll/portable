@@ -21,27 +21,32 @@ module Portable
         @resolver = resolver
 
         @row_renderers = @document.sheets.each_with_object({}) do |sheet, memo|
-          next unless sheet.data_table
-
-          memo[sheet.name] = Row.new(sheet.data_table.columns, resolver: resolver)
+          memo[sheet.name] = Row.new(sheet.columns, resolver: resolver)
         end
 
         freeze
       end
 
       def row_renderer(sheet_name, fields)
-        row_renderers.fetch(sheet_name, dynamic_row_renderer(fields))
+        sheet        = document.sheet(sheet_name)
+        row_renderer = row_renderers.fetch(sheet_name.to_s)
+
+        return row_renderer unless sheet.auto?
+
+        dynamic_row_renderer(fields).merge(row_renderer)
       end
 
       private
 
       attr_reader :row_renderers
 
-      def dynamic_row_renderer(fields)
-        fields  = (fields || []).map { |f| { header: f.to_s } }
-        columns = Modeling::Column.array(fields)
+      def fields_to_columns(fields)
+        fields = (fields || []).map { |f| { header: f.to_s } }
+        Modeling::Column.array(fields)
+      end
 
-        Row.new(columns, resolver: resolver)
+      def dynamic_row_renderer(fields)
+        Row.new(fields_to_columns(fields), resolver: resolver)
       end
     end
   end

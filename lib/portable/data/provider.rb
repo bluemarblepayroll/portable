@@ -14,7 +14,8 @@ module Portable
     # Container of data sources that is inputted into a writer alongside a document.
     # It contains all the data sources the writer will use to render a document.
     class Provider
-      include Uniqueness
+      include Util::Pivotable
+      include Util::Uniqueness
       acts_as_hashable
 
       DEFAULT_NAME = ''
@@ -40,12 +41,6 @@ module Portable
       private
 
       attr_reader :data_sources_by_name
-
-      def pivot_by_name(data_sources)
-        data_sources.each_with_object({}) do |data_source, memo|
-          memo[data_source.name] = data_source
-        end
-      end
     end
   end
 end

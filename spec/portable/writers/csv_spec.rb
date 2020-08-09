@@ -86,6 +86,7 @@ describe Portable::Writers::Csv do
           sheets: [
             {
               data_table: {
+                auto: false,
                 columns: [
                   {
                     header: 'First Name',

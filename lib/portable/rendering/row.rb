@@ -12,9 +12,11 @@ module Portable
     # Internal intermediary class that knows how to combine columns specification
     # instances with their respective Realize pipelines.
     class Row # :nodoc: all
-      attr_reader :column_pipelines
+      attr_reader :column_pipelines, :resolver
 
       def initialize(columns, resolver: Objectable.resolver)
+        @resolver = resolver
+
         @column_pipelines = columns.each_with_object({}) do |column, memo|
           memo[column] = Realize::Pipeline.new(column.transformers, resolver: resolver)
         end
@@ -34,6 +36,10 @@ module Portable
 
       def headers
         columns.map(&:header)
+      end
+
+      def merge(other)
+        self.class.new(columns + other.columns, resolver: resolver)
       end
     end
   end

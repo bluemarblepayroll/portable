@@ -17,7 +17,7 @@ require 'realize'
 require 'time'
 
 # Shared modules/classes
-require_relative 'portable/uniqueness'
+require_relative 'portable/util'
 
 # Main implementation points
 require_relative 'portable/data'

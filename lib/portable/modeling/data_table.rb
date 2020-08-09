@@ -16,10 +16,15 @@ module Portable
     class DataTable
       acts_as_hashable
 
-      attr_reader :columns
+      attr_reader :auto, :columns, :include_headers
 
-      def initialize(columns: [])
-        @columns = Column.array(columns)
+      alias include_headers? include_headers
+      alias auto? auto
+
+      def initialize(auto: true, columns: [], include_headers: true)
+        @auto            = auto || false
+        @columns         = Column.array(columns)
+        @include_headers = include_headers || false
 
         freeze
       end

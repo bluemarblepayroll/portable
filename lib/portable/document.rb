@@ -13,19 +13,37 @@ require_relative 'modeling/sheet'
 module Portable
   # Top-level object model for a renderable document.
   class Document
-    include Uniqueness
+    include Util::Pivotable
+    include Util::Uniqueness
     acts_as_hashable
 
-    attr_reader :sheets, :options
+    attr_reader :options
 
     def initialize(sheets: [], options: {})
-      @sheets = Modeling::Sheet.array(sheets)
-      @sheets << Modeling::Sheet.new if @sheets.empty?
-      @options = Modeling::Options.make(options)
-
-      assert_no_duplicate_names(@sheets)
+      @sheets_by_name = make_unique_sheets_by_name(sheets)
+      @options        = Modeling::Options.make(options, nullable: false)
 
       freeze
+    end
+
+    def sheet(name)
+      sheets_by_name.fetch(name.to_s)
+    end
+
+    def sheets
+      sheets_by_name.values
+    end
+
+    private
+
+    attr_reader :sheets_by_name
+
+    def make_unique_sheets_by_name(sheets)
+      sheets = Modeling::Sheet.array(sheets)
+      sheets << Modeling::Sheet.new if sheets.empty?
+
+      assert_no_duplicate_names(sheets)
+      pivot_by_name(sheets)
     end
   end
 end

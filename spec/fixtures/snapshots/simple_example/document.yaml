@@ -3,6 +3,7 @@ options:
 sheets:
   - name: sheet1
     data_table:
+      auto: false
       columns:
         - header: first
         - header: last
@@ -14,9 +15,16 @@ sheets:
               output_format: '%m/%d/%Y'
         - header: funny
         - header: status
-    include_headers: false
+      include_headers: false
     footer_rows:
       - [ Brought to you by no one ]
     header_rows:
        - [ 'SIMPLE EXAMPLE' ]
   - name: sheet2
+  - name: sheet3
+    data_table:
+      columns:
+        - header: something_static
+          transformers:
+            - type: r/value/static
+              value: I am static!
