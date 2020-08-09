@@ -8,7 +8,7 @@
 #
 
 module Portable
-  module Util
+  module Util # :nodoc: all
     # Mixes in helpers for asserting uniqueness across collections
     module Uniqueness
       class DuplicateNameError < StandardError; end

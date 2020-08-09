@@ -22,7 +22,7 @@ module Portable
         sheet_filenames = extrapolate_filenames(filename, document.sheets.length)
 
         document.sheets.map.with_index do |sheet, index|
-          data_source    = data_provider.data_source(sheet.name)
+          data_source    = data_provider.data_source(sheet.data_source_name)
           sheet_filename = sheet_filenames[index]
 
           time_in_seconds = Benchmark.measure do

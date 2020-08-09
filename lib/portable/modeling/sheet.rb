@@ -24,23 +24,38 @@ module Portable
                      :columns,
                      :include_headers?
 
-      attr_reader :data_table,
+      attr_reader :data_source_name,
+                  :data_table,
                   :footer_rows,
                   :header_rows,
                   :name
 
       def initialize(
+        data_source_name: '',
         data_table: nil,
         footer_rows: [],
         header_rows: [],
         name: ''
       )
-        @name        = name.to_s
-        @data_table  = DataTable.make(data_table, nullable: false)
-        @footer_rows = footer_rows || []
-        @header_rows = header_rows || []
+        @data_source_name = decide_data_source_name(data_source_name, name)
+        @name             = name.to_s
+        @data_table       = DataTable.make(data_table, nullable: false)
+        @footer_rows      = footer_rows || []
+        @header_rows      = header_rows || []
 
         freeze
+      end
+
+      # Use exact name if possible, if not then use the sheet name or else use the
+      # "default" one (noted by a blank name).
+      def decide_data_source_name(data_source_name, sheet_name)
+        if !data_source_name.to_s.empty?
+          data_source_name.to_s
+        elsif !sheet_name.to_s.empty?
+          sheet_name.to_s
+        else
+          ''
+        end
       end
     end
   end
