@@ -32,13 +32,3 @@ data_sources:
       - make: Toyota
         model: Camry
         year: 1934
-
-  - name: sheet3
-    fields:
-      - make
-      - model
-      - year
-    data_rows:
-      - make: Toyota
-        model: Camry
-        year: 1934

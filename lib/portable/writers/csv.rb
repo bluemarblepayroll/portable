@@ -57,7 +57,7 @@ module Portable
         csv << row_renderer.headers if sheet.include_headers?
 
         data_source.data_rows.each do |row|
-          csv << row_renderer.render(row, time).values
+          csv << row_renderer.render(row, time)
         end
       end
 

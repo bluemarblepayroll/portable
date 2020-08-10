@@ -22,9 +22,11 @@ sheets:
        - [ 'SIMPLE EXAMPLE' ]
   - name: sheet2
   - name: sheet3
+    data_source_name: sheet2
     data_table:
       columns:
         - header: something_static
           transformers:
             - type: r/value/static
               value: I am static!
+        - header: make # a duplicate of one that would be auto-added due to auto: true

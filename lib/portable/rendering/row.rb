@@ -7,39 +7,36 @@
 # LICENSE file in the root directory of this source tree.
 #
 
+require_relative 'column'
+
 module Portable
   module Rendering
     # Internal intermediary class that knows how to combine columns specification
     # instances with their respective Realize pipelines.
     class Row # :nodoc: all
-      attr_reader :column_pipelines, :resolver
+      attr_reader :columns, :resolver
 
       def initialize(columns, resolver: Objectable.resolver)
         @resolver = resolver
-
-        @column_pipelines = columns.each_with_object({}) do |column, memo|
-          memo[column] = Realize::Pipeline.new(column.transformers, resolver: resolver)
-        end
+        @columns  = columns.map { |column| Column.new(column, resolver: resolver) }
 
         freeze
       end
 
       def render(object, time)
-        column_pipelines.each_with_object({}) do |(column, pipeline), memo|
-          memo[column.header] = pipeline.transform(object, time)
-        end
-      end
-
-      def columns
-        column_pipelines.keys
+        columns.map { |column| column.transform(object, time) }
       end
 
       def headers
         columns.map(&:header)
       end
 
+      def model_columns
+        columns.map(&:column)
+      end
+
       def merge(other)
-        self.class.new(columns + other.columns, resolver: resolver)
+        self.class.new(model_columns + other.model_columns, resolver: resolver)
       end
     end
   end
