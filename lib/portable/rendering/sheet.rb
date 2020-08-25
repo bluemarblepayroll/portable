@@ -27,26 +27,26 @@ module Portable
         freeze
       end
 
-      def row_renderer(sheet_name, fields)
+      def row_renderer(sheet_name, keys)
         sheet        = document.sheet(sheet_name)
         row_renderer = row_renderers.fetch(sheet_name.to_s)
 
         return row_renderer unless sheet.auto?
 
-        dynamic_row_renderer(fields).merge(row_renderer)
+        dynamic_row_renderer(keys).merge(row_renderer)
       end
 
       private
 
       attr_reader :row_renderers
 
-      def fields_to_columns(fields)
-        fields = (fields || []).map { |f| { header: f.to_s } }
-        Modeling::Column.array(fields)
+      def fields_to_columns(keys)
+        key_objects = (keys || []).map { |f| { header: f.to_s } }
+        Modeling::Column.array(key_objects)
       end
 
-      def dynamic_row_renderer(fields)
-        Row.new(fields_to_columns(fields), resolver: resolver)
+      def dynamic_row_renderer(keys)
+        Row.new(fields_to_columns(keys), resolver: resolver)
       end
     end
   end

@@ -24,11 +24,11 @@ data_sources:
         status: 2
 
   - name: sheet2
-    fields:
+    keys:
       - make
       - model
       - year
     data_rows:
-      - make: Toyota
+      - make: Toyoda
         model: Camry
         year: 1934

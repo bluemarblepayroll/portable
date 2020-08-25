@@ -35,7 +35,7 @@ patients = [
 data_provider = Portable::Data::Provider.new(
   data_sources: {
     data_rows: patients,
-    fields: %i[first last dob]
+    keys: %i[first last dob]
   }
 )
 ````
@@ -50,7 +50,7 @@ document = nil # or {} or Portable::Document.new
 
 The above document says I would like a document with one sheet, and since I did not provide a data_table specification, I would like all the fields emitted from the data source.
 
-Combining a document + writer + data provider yields a set of documents (it may be more than one if the writer does not know how to write intra-file sheets, i.e. CSV files.)
+Combining a document + writer + data provider yields a set of documents.  It may emit more than one file if the writer does not know how to write intra-file sheets (i.e. CSV files).
 
 ````ruby
 writer    = Portable::Writers::Csv.new(document)
@@ -72,6 +72,18 @@ This library uses Realize under the hood, so you have the option of configuring 
 Let's expand our CSV example above with different headers and date formatting:
 
 ````ruby
+patients = [
+  { first: 'Marky', last: 'Mark', dob: '2000-04-05' },
+  { first: 'Frank', last: 'Rizzo', dob: '1930-09-22' }
+]
+
+data_provider = Portable::Data::Provider.new(
+  data_sources: {
+    data_rows: patients,
+    keys: %i[first last dob]
+  }
+)
+
 document = {
   sheets: [
     {
@@ -101,14 +113,20 @@ document = {
     }
   ]
 }
+
+writer    = Portable::Writers::Csv.new(document)
+name      = File.join('tmp', 'patients.csv')
+written   = writer.write!(filename: name, data_provider: data_provider)
 ````
 
 Executing it the same way would now yield a different CSV file:
 
+````
 First Name | Last Name | Date of Birth
 ---------- | --------- | -------------
 Marky      | Mark      | 04/05/2000
 Frank      | Rizzo     | 09/22/1930
+````
 
 Realize is also [pluggable](https://github.com/bluemarblepayroll/realize#plugging-in-transformers), so you are able to create your own and plug them directly into Realize.
 
@@ -120,7 +138,7 @@ Each writer can choose how and which options to support.
 
 The following options are available for customizing CSV documents:
 
-* byte_order_mark: (optional, default is nothing): This option will write out a byte order mark identifying the encoding for the file.  This is useful for ensuring applications like Microsoft Excel open CSV files properly.  See Portable::Modeling::ByteOrderMark constants for acceptable values.
+* byte_order_mark: (optional, default is nothing): This option will write out a [byte order mark](https://en.wikipedia.org/wiki/Byte_order_mark) identifying the endianess for the file.  This is useful for ensuring applications like Microsoft Excel open CSV files properly.  See Portable::Modeling::ByteOrderMark constants for acceptable values.
 
 ### Static Header/Footer Rows
 
@@ -135,7 +153,7 @@ patients = [
 data_provider = Portable::Data::Provider.new(
   data_sources: {
     data_rows: patients,
-    fields: %i[first last dob],
+    keys: %i[first last dob],
     header_rows: [
       %w[FIRST_START LAST_START DOB_START]
     ],
@@ -160,6 +178,10 @@ document = {
     }
   ]
 }
+
+writer    = Portable::Writers::Csv.new(document)
+name      = File.join('tmp', 'patients.csv')
+written   = writer.write!(filename: name, data_provider: data_provider)
 ````
 
 Using this document configuration would yield a CSV with four "header rows" at the top, one "data table header row", two data rows, and one "footer row".  This is not easily illustrated in Markdown, but this would be the result:
@@ -169,10 +191,12 @@ Run Date   | 04/05/2000
 Run By     | Hops the Bunny
 
 BEGIN
-First Name | Last Name | Date of Birth
----------- | --------- | -------------
-Marky      | Mark      | 04/05/2000
-Frank      | Rizzo     | 09/22/1930
+FIRST_START | LAST_START | DOB_START
+first       | last       | dob
+----------- | ---------- | -------------
+Marky       | Mark       | 2000-04-05
+Frank       | Rizzo      | 1930-09-22
+FIRST_END   | LAST_END   | DOB_END
 END
 ````
 

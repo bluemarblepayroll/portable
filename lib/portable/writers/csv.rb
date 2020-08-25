@@ -52,7 +52,7 @@ module Portable
       end
 
       def write_data_table(csv, sheet, data_source, time)
-        row_renderer = sheet_renderer.row_renderer(sheet.name, data_source.fields)
+        row_renderer = sheet_renderer.row_renderer(sheet.name, data_source.keys)
 
         csv << row_renderer.headers if sheet.include_headers?
 

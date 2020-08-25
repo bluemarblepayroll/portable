@@ -19,17 +19,17 @@ module Portable
       attr_reader :header_rows,
                   :footer_rows,
                   :data_rows,
-                  :fields,
+                  :keys,
                   :name
 
       # Individial header and footer rows are arrays, while individual data_rows is an object
       # like a hash, Struct, OpenStruct, or really any PORO.
-      def initialize(name: '', header_rows: [], footer_rows: [], data_rows: [], fields: [])
+      def initialize(name: '', header_rows: [], footer_rows: [], data_rows: [], keys: [])
         @name        = name.to_s
         @header_rows = header_rows || []
         @footer_rows = footer_rows || []
         @data_rows   = data_rows   || []
-        @fields      = fields      || []
+        @keys        = keys        || []
 
         freeze
       end

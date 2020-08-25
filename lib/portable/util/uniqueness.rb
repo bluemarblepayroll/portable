@@ -18,7 +18,7 @@ module Portable
 
         return if names.uniq.length == array.length
 
-        raise DuplicateNameError, "cannot contain duplicate names: #{names}"
+        raise DuplicateNameError, "cannot contain duplicate names (case insensitive): #{names}"
       end
     end
   end

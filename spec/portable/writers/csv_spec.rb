@@ -46,13 +46,13 @@ describe Portable::Writers::Csv do
       ]
     end
 
-    let(:fields) { %i[first last dob] }
+    let(:keys) { %i[first last dob] }
 
     let(:data_provider) do
       Portable::Data::Provider.new(
         data_sources: {
           data_rows: patients,
-          fields: fields
+          keys: keys
         }
       )
     end
@@ -139,7 +139,7 @@ describe Portable::Writers::Csv do
         Portable::Data::Provider.new(
           data_sources: {
             data_rows: patients,
-            fields: %i[first last dob],
+            keys: %i[first last dob],
             header_rows: [
               %w[FIRST_START LAST_START DOB_START]
             ],

@@ -46,6 +46,8 @@ module Portable
         freeze
       end
 
+      private
+
       # Use exact name if possible, if not then use the sheet name or else use the
       # "default" one (noted by a blank name).
       def decide_data_source_name(data_source_name, sheet_name)
