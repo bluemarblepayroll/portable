@@ -11,7 +11,7 @@ This library utilizes [the Realize library](https://github.com/bluemarblepayroll
 To install through Rubygems:
 
 ````
-gem install install portable
+gem install portable
 ````
 
 You can also add this to your Gemfile:
